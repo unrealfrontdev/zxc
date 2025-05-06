@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Справочник персоналий</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- React и ReactDOM через CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- Babel для JSX -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Примерные данные о персоналиях
+        const personsData = [
+            {
+                id: 1,
+                lastName: "Эйнштейн",
+                firstName: "Альберт",
+                birthYear: 1879,
+                deathYear: 1955,
+                profession: "Физик-теоретик",
+                country: "Германия/США",
+                achievements: "Теория относительности, квантовая теория света",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Albert_Einstein_Head.jpg/330px-Albert_Einstein_Head.jpg"
+            },
+            {
+                id: 2,
+                lastName: "Кюри",
+                firstName: "Мария",
+                birthYear: 1867,
+                deathYear: 1934,
+                profession: "Физик, химик",
+                country: "Польша/Франция",
+                achievements: "Открытие радия и полония, исследования радиоактивности",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Marie_Curie_c._1920s.jpg/330px-Marie_Curie_c._1920s.jpg"
+            },
+            {
+                id: 3,
+                lastName: "Тьюринг",
+                firstName: "Алан",
+                birthYear: 1912,
+                deathYear: 1954,
+                profession: "Математик, логик",
+                country: "Великобритания",
+                achievements: "Машина Тьюринга, дешифровка Enigma",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Alan_Turing_Aged_16.jpg/330px-Alan_Turing_Aged_16.jpg"
+            },
+            {
+                id: 4,
+                lastName: "Ломоносов",
+                firstName: "Михаил",
+                birthYear: 1711,
+                deathYear: 1765,
+                profession: "Учёный-энциклопедист",
+                country: "Россия",
+                achievements: "Работы в области химии, физики, астрономии",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Lomonosov_2.jpg/274px-Lomonosov_2.jpg"
+            },
+            {
+                id: 5,
+                lastName: "Хокинг",
+                firstName: "Стивен",
+                birthYear: 1942,
+                deathYear: 2018,
+                profession: "Физик-теоретик",
+                country: "Великобритания",
+                achievements: "Теория черных дыр, квантовая гравитация",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Stephen_Hawking.StarChild.jpg/330px-Stephen_Hawking.StarChild.jpg"
+            },
+            {
+                id: 6,
+                lastName: "Менделеев",
+                firstName: "Дмитрий",
+                birthYear: 1834,
+                deathYear: 1907,
+                profession: "Химик",
+                country: "Россия",
+                achievements: "Периодический закон химических элементов",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/DIMendeleevCab.jpg/330px-DIMendeleevCab.jpg"
+            },
+            {
+                id: 7,
+                lastName: "Теслa",
+                firstName: "Никола",
+                birthYear: 1856,
+                deathYear: 1943,
+                profession: "Инженер, изобретатель",
+                country: "Сербия/США",
+                achievements: "Переменный ток, беспроводная связь",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Tesla_circa_1890.jpeg/330px-Tesla_circa_1890.jpeg"
+            },
+            {
+                id: 8,
+                lastName: "Дарвин",
+                firstName: "Чарльз",
+                birthYear: 1809,
+                deathYear: 1882,
+                profession: "Естествоиспытатель",
+                country: "Великобритания",
+                achievements: "Теория эволюции",
+                photo: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Charles_Darwin_by_Julia_Margaret_Cameron_3.jpg/330px-Charles_Darwin_by_Julia_Margaret_Cameron_3.jpg"
+            }
+        ];
+
+        // Компонент приложения
+        class App extends React.Component {
+            constructor(props) {
+                super(props);
+                this.state = {
+                    persons: personsData,
+                    sortKey: "lastName",
+                    sortDirection: "asc",
+                    filters: {
+                        profession: "",
+                        country: "",
+                        century: ""
+                    },
+                    showPhotos: true,
+                    showStats: false
+                };
+            }
+
+            // Сортировка списка
+            handleSort = (key) => {
+                this.setState(prevState => {
+                    const newDirection = 
+                        prevState.sortKey === key && prevState.sortDirection === "asc" 
+                            ? "desc" 
+                            : "asc";
+                    
+                    return {
+                        sortKey: key,
+                        sortDirection: newDirection
+                    };
+                });
+            };
+
+            // Изменение фильтров
+            handleFilterChange = (filterName, value) => {
+                this.setState(prevState => ({
+                    filters: {
+                        ...prevState.filters,
+                        [filterName]: value
+                    }
+                }));
+            };
+
+            // Переключение режима отображения фотографий
+            togglePhotos = () => {
+                this.setState(prevState => ({
+                    showPhotos: !prevState.showPhotos
+                }));
+            };
+
+            // Переключение режима статистики
+            toggleStats = () => {
+                this.setState(prevState => ({
+                    showStats: !prevState.showStats
+                }));
+            };
+
+            render() {
+                // Фильтрация данных
+                let filteredPersons = [...this.state.persons];
+                
+                if (this.state.filters.profession) {
+                    filteredPersons = filteredPersons.filter(
+                        person => person.profession.toLowerCase().includes(this.state.filters.profession.toLowerCase())
+                    );
+                }
+                
+                if (this.state.filters.country) {
+                    filteredPersons = filteredPersons.filter(
+                        person => person.country.toLowerCase().includes(this.state.filters.country.toLowerCase())
+                    );
+                }
+                
+                if (this.state.filters.century) {
+                    const centuryStart = (parseInt(this.state.filters.century) - 1) * 100;
+                    const centuryEnd = parseInt(this.state.filters.century) * 100 - 1;
+                    filteredPersons = filteredPersons.filter(
+                        person => person.birthYear >= centuryStart && person.birthYear <= centuryEnd
+                    );
+                }
+
+                // Сортировка данных
+                filteredPersons.sort((a, b) => {
+                    let valueA = a[this.state.sortKey];
+                    let valueB = b[this.state.sortKey];
+                    
+                    if (typeof valueA === 'string') {
+                        valueA = valueA.toLowerCase();
+                        valueB = valueB.toLowerCase();
+                    }
+                    
+                    if (this.state.sortDirection === "asc") {
+                        if (valueA < valueB) return -1;
+                        if (valueA > valueB) return 1;
+                        return 0;
+                    } else {
+                        if (valueA > valueB) return -1;
+                        if (valueA < valueB) return 1;
+                        return 0;
+                    }
+                });
+
+                // Вычисление статистики
+                const professionStats = {};
+                const countryStats = {};
+                const centuryStats = {};
+
+                this.state.persons.forEach(person => {
+                    // Статистика по профессиям
+                    if (!professionStats[person.profession]) {
+                        professionStats[person.profession] = 0;
+                    }
+                    professionStats[person.profession]++;
+
+                    // Статистика по странам
+                    const countries = person.country.split('/');
+                    countries.forEach(country => {
+                        if (!countryStats[country]) {
+                            countryStats[country] = 0;
+                        }
+                        countryStats[country]++;
+                    });
+
+                    // Статистика по векам
+                    const century = Math.ceil(person.birthYear / 100);
+                    if (!centuryStats[century]) {
+                        centuryStats[century] = 0;
+                    }
+                    centuryStats[century]++;
+                });
+
+                return (
+                    <div className="container py-4">
+                        <header className="pb-3 mb-4 border-bottom">
+                            <h1 className="display-5 fw-bold">Справочник персоналий</h1>
+                        </header>
+
+                        <div className="row mb-4">
+                            <div className="col-md-4 mb-3">
+                                <div className="input-group">
+                                    <span className="input-group-text">Профессия</span>
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        placeholder="Введите профессию..."
+                                        value={this.state.filters.profession}
+                                        onChange={(e) => this.handleFilterChange("profession", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-md-4 mb-3">
+                                <div className="input-group">
+                                    <span className="input-group-text">Страна</span>
+                                    <input 
+                                        type="text" 
+                                        className="form-control" 
+                                        placeholder="Введите страну..."
+                                        value={this.state.filters.country}
+                                        onChange={(e) => this.handleFilterChange("country", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div className="col-md-4 mb-3">
+                                <div className="input-group">
+                                    <span className="input-group-text">Век</span>
+                                    <select 
+                                        className="form-select" 
+                                        value={this.state.filters.century}
+                                        onChange={(e) => this.handleFilterChange("century", e.target.value)}
+                                    >
+                                        <option value="">Все века</option>
+                                        <option value="18">18 век</option>
+                                        <option value="19">19 век</option>
+                                        <option value="20">20 век</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Таблица персоналий */}
+                        <div className="row">
+                            <div className="col">
+                                <div className="table-responsive">
+                                    <table className="table table-striped table-hover">
+                                        <thead>
+                                            <tr>
+                                                {this.state.showPhotos && <th>Фото</th>}
+                                                <th onClick={() => this.handleSort("lastName")} style={{cursor: 'pointer'}}>
+                                                    Фамилия
+                                                    {this.state.sortKey === "lastName" && (
+                                                        <i className={`bi ${this.state.sortDirection === "asc" ? "bi-sort-alpha-down" : "bi-sort-alpha-up"} ms-1`}></i>
+                                                    )}
+                                                </th>
+                                                <th onClick={() => this.handleSort("firstName")} style={{cursor: 'pointer'}}>
+                                                    Имя
+                                                    {this.state.sortKey === "firstName" && (
+                                                        <i className={`bi ${this.state.sortDirection === "asc" ? "bi-sort-alpha-down" : "bi-sort-alpha-up"} ms-1`}></i>
+                                                    )}
+                                                </th>
+                                                <th onClick={() => this.handleSort("birthYear")} style={{cursor: 'pointer'}}>
+                                                    Год рождения
+                                                    {this.state.sortKey === "birthYear" && (
+                                                        <i className={`bi ${this.state.sortDirection === "asc" ? "bi-sort-numeric-down" : "bi-sort-numeric-up"} ms-1`}></i>
+                                                    )}
+                                                </th>
+                                                <th onClick={() => this.handleSort("profession")} style={{cursor: 'pointer'}}>
+                                                    Профессия
+                                                    {this.state.sortKey === "profession" && (
+                                                        <i className={`bi ${this.state.sortDirection === "asc" ? "bi-sort-alpha-down" : "bi-sort-alpha-up"} ms-1`}></i>
+                                                    )}
+                                                </th>
+                                                <th onClick={() => this.handleSort("country")} style={{cursor: 'pointer'}}>
+                                                    Страна
+                                                    {this.state.sortKey === "country" && (
+                                                        <i className={`bi ${this.state.sortDirection === "asc" ? "bi-sort-alpha-down" : "bi-sort-alpha-up"} ms-1`}></i>
+                                                    )}
+                                                </th>
+                                                <th>Достижения</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {filteredPersons.map(person => (
+                                                <tr key={person.id}>
+                                                    {this.state.showPhotos && (
+                                                        <td>
+                                                            <img 
+                                                                src={person.photo} 
+                                                                alt={`${person.firstName} ${person.lastName}`}
+                                                                className="img-fluid rounded" 
+                                                                style={{maxWidth: '80px'}}
+                                                            />
+                                                        </td>
+                                                    )}
+                                                    <td>{person.lastName}</td>
+                                                    <td>{person.firstName}</td>
+                                                    <td>{person.birthYear} - {person.deathYear}</td>
+                                                    <td>{person.profession}</td>
+                                                    <td>{person.country}</td>
+                                                    <td>{person.achievements}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <footer className="pt-3 mt-4 text-muted border-top">
+                            &copy; 2024 Справочник персоналий
+                        </footer>
+                    </div>
+                );
+            }
+        }
+
+        // Рендер приложения
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+
+    <!-- Bootstrap JS (опционально) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
