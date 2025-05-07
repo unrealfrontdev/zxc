@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
+import { Card } from 'react-bootstrap';
 
-
-function Main({ addToCart }) {
+function Main({ addToCart, onProductClick }) {
   const [expandedProductId, setExpandedProductId] = useState(null);
 
   const products = [
@@ -47,7 +47,11 @@ function Main({ addToCart }) {
       <div className="row">
         {products.map((product) => (
           <div key={product.id} className="col-md-4 mb-4">
-            <div className="card">
+            <Card 
+              className="h-100" 
+              onClick={() => onProductClick(product)}
+              style={{ cursor: 'pointer' }}
+            >
               <img src={product.image} className="card-img-top" alt={product.name} />
               <div className="card-body">
                 <h5 className="card-title">{product.name}</h5>
@@ -60,7 +64,7 @@ function Main({ addToCart }) {
                   Добавить в корзину
                 </button>
               </div>
-            </div>
+            </Card>
           </div>
         ))}
       </div>

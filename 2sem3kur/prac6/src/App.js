@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-
 import Header from './Header';
 import Main from './Main';
 import Cart from './Cart';
+import ProductDetails from './ProductDetails';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   const [cart, setCart] = useState([]);
   const [showCart, setShowCart] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const addToCart = (product) => {
     const existingProductIndex = cart.findIndex((item) => item.id === product.id);
@@ -37,6 +38,11 @@ function App() {
 
   const goToHome = () => {
     setShowCart(false);
+    setSelectedProduct(null);
+  };
+
+  const showProductDetails = (product) => {
+    setSelectedProduct(product);
   };
 
   return (
@@ -49,8 +55,14 @@ function App() {
           onBack={goToHome}
           onUpdateQuantity={updateQuantity}
         />
+      ) : selectedProduct ? (
+        <ProductDetails
+          product={selectedProduct}
+          addToCart={addToCart}
+          onBack={goToHome}
+        />
       ) : (
-        <Main addToCart={addToCart} />
+        <Main addToCart={addToCart} onProductClick={showProductDetails} />
       )}
     </div>
   );
